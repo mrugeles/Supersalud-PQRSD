@@ -4,7 +4,7 @@ This project is a second version of my project [Building a classification model 
 
 For this version CRISP-DM process was applied allowing the model to get a better score of 85%.
 
-A general explanation for this project can be found at medium.com.
+A general explanation for this project can be found at medum.com: [Predicting patients with life at risk in the Colombian Healthcare System.](https://medium.com/@mrugeles/predicting-patients-with-life-at-risk-in-the-colombian-healthcare-system-4a260a0ccbd2).
 
 For this project is required to download the dataset from www.datos.gov.co and installing python libraries category_encoders, seaborn and mlxtend
 
