@@ -2,9 +2,19 @@
 
 import pandas as pd
 import numpy as np
+
+from category_encoders import *
+from datetime import datetime
+
 import matplotlib.pyplot as plt
 from functools import reduce
 from IPython.display import display
+
+def process_month(date):
+    if(date != '0'):
+        datetime_object = datetime.strptime(date, "%m")
+        return datetime_object.strftime("%m")
+    return None
 
 def get_pqrd_dataset():
     """Build a pandas dataframe from PQRD files."""
@@ -18,10 +28,11 @@ def get_pqrd_dataset():
 
 
     # Every year some features can be added or removed. So before perform a union we first take all the columns in common.
-    colums_2017 = data_2017.columns.values
-    colums_2016 = data_2016.columns.values
-    colums_2015 = data_2015.columns.values
-    ds_columns = reduce(np.intersect1d, (colums_2017, colums_2016, colums_2015))
+    colums_2015 = set(data_2015.columns.values)
+    colums_2016 = set(data_2016.columns.values)
+    colums_2017 = set(data_2017.columns.values)
+
+    ds_columns = list(set.intersection(colums_2015, colums_2016, colums_2017))
 
     #Unifying datasets.
     dataset = data_2017[ds_columns]
@@ -29,7 +40,7 @@ def get_pqrd_dataset():
     dataset = dataset.append(data_2015[ds_columns])
 
     #Formating the month fields to MM format.
-    dataset['MES'] = dataset['MES'].apply(lambda m: '0' + str(m) if m < 10 else m)
+    dataset['MES'] = dataset['MES'].apply(process_month)
 
 
     data_columns = dataset.columns.values.tolist()
@@ -37,6 +48,7 @@ def get_pqrd_dataset():
         dataset[column] = dataset[column].apply(lambda s: str(s).lower())
 
     return dataset
+
 
 def plot_field(dataset, plot_title):
     field = dataset.value_counts()
@@ -88,7 +100,6 @@ def impute_values(path, imput_path):
 
 def encode_features(features, labels):
     """Encode categorical features with TargetEncoder"""
-    from category_encoders import *
     import time
 
     features_columns = features.columns.values.tolist()
