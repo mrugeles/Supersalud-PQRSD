@@ -6,6 +6,9 @@ import matplotlib.pyplot as plt
 from functools import reduce
 from IPython.display import display
 
+import category_encoders
+import time
+
 def get_pqrd_dataset():
     """Build a pandas dataframe from PQRD files."""
     #
@@ -29,7 +32,7 @@ def get_pqrd_dataset():
     dataset = dataset.append(data_2015[ds_columns])
 
     #Formating the month fields to MM format.
-    dataset['MES'] = dataset['MES'].apply(lambda m: '0' + str(m) if m < 10 else m)
+    dataset['MES'] = dataset['MES'].apply(lambda m: '0' + str(m) if int(m) < 10 else m)
 
 
     data_columns = dataset.columns.values.tolist()
@@ -53,7 +56,7 @@ def get_dataset():
 # clean AFEC_DPTO
 def clean_afec_dpto(dataset):
     """Fix wrong values for some specific cases."""
-    dataset['AFEC_DPTO'] = dataset['AFEC_DPTO'].apply(lambda s: 'san andres' if s == 'archipielago de san andres, providencia y santa catalina' or s == 'san andrés'.decode('utf-8') else s)
+    dataset['AFEC_DPTO'] = dataset['AFEC_DPTO'].apply(lambda s: 'san andres' if s == 'archipielago de san andres, providencia y santa catalina' or s == 'san andrés' else s)
     dataset['AFEC_DPTO'] = dataset['AFEC_DPTO'].apply(lambda s: 'bogota d.c.' if s == 'bogota d.c' else s)
     return dataset
 
@@ -75,26 +78,23 @@ def remove_features(dataset):
     unused_features = ['IDRANGOEDADES', 'ID_MES', 'PQR_GRUPOALERTA', 'PQR_ESTADO', 'ENT_DPTO', 'ENT_MPIO', 'PET_DPTO', 'MACROMOTIVO', 'MOTIVO_GENERAL', 'MOTIVO_ESPECIFICO']
     return dataset.drop(unused_features, axis = 1)
 
-def impute_values(path, imput_path):
+def impute_values(dataset):
     """Impute categorical features with most frequent values"""
     from sklearn.impute import SimpleImputer
-    dataset = pd.read_csv(path)
-
+    
     col_zero_values = set(dataset.columns[dataset.eq('0').mean() > 0])
     imp = SimpleImputer(missing_values = '0', strategy="most_frequent")
     for feature in col_zero_values:
         dataset[feature] = imp.fit_transform(dataset[[feature]])
-    dataset.to_csv(imput_path, index = False)
+    return dataset
 
 def encode_features(features, labels):
     """Encode categorical features with TargetEncoder"""
-    from category_encoders import *
-    import time
 
     features_columns = features.columns.values.tolist()
 
     start_time = time.time()
-    enc = TargetEncoder(cols=features_columns, return_df = True).fit(features, labels)
+    enc = category_encoders.TargetEncoder(cols=features_columns, return_df = True).fit(features, labels)
     encoded_features = enc.transform(features)
     print("--- %s seconds ---" % (time.time() - start_time))
     return encoded_features
