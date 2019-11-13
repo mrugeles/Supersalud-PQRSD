@@ -3,6 +3,12 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import wget
+import shutil
+import os
+import time
+
+from category_encoders import TargetEncoder
 from functools import reduce
 from IPython.display import display
 
@@ -29,7 +35,7 @@ def get_pqrd_dataset():
     dataset = dataset.append(data_2015[ds_columns])
 
     #Formating the month fields to MM format.
-    dataset['MES'] = dataset['MES'].apply(lambda m: '0' + str(m) if m < 10 else m)
+    dataset['MES'] = dataset['MES'].apply(lambda m: '0' + str(m) if int(m) < 10 else str(m))
 
 
     data_columns = dataset.columns.values.tolist()
@@ -53,21 +59,21 @@ def get_dataset():
 # clean AFEC_DPTO
 def clean_afec_dpto(dataset):
     """Fix wrong values for some specific cases."""
-    dataset['AFEC_DPTO'] = dataset['AFEC_DPTO'].apply(lambda s: 'san andres' if s == 'archipielago de san andres, providencia y santa catalina' or s == 'san andrés'.decode('utf-8') else s)
+    dataset['AFEC_DPTO'] = dataset['AFEC_DPTO'].apply(lambda s: 'san andres' if s == 'archipielago de san andres, providencia y santa catalina' or s == 'san andrés' else s)
     dataset['AFEC_DPTO'] = dataset['AFEC_DPTO'].apply(lambda s: 'bogota d.c.' if s == 'bogota d.c' else s)
     return dataset
 
 # clean RIESGO_VIDA
 def clean_riesgo_vida(dataset):
     """Maps RIESGO_VIDA for binary classification"""
-    dataset = dataset.loc[(dataset['RIESGO_VIDA'] != '0')]
+    dataset = dataset.loc[(dataset['RIESGO_VIDA'] != '999')]
     dataset['RIESGO_VIDA'] = np.where(dataset['RIESGO_VIDA'] == 'si', 1,0)
     return dataset
 
 # clean CIE_10
 def clean_cie_10(dataset):
     """Remove records with no values"""
-    return dataset.loc[(dataset['CIE_10'] != 0) & (dataset['CIE_10'] != '0')]
+    return dataset.loc[(dataset['CIE_10'] != 0) & (dataset['CIE_10'] != '999')]
 
 # remove features
 def remove_features(dataset):
@@ -81,15 +87,13 @@ def impute_values(path, imput_path):
     dataset = pd.read_csv(path)
 
     col_zero_values = set(dataset.columns[dataset.eq('0').mean() > 0])
-    imp = SimpleImputer(missing_values = '0', strategy="most_frequent")
+    imp = SimpleImputer(missing_values = '999', strategy="most_frequent")
     for feature in col_zero_values:
         dataset[feature] = imp.fit_transform(dataset[[feature]])
     dataset.to_csv(imput_path, index = False)
 
 def encode_features(features, labels):
     """Encode categorical features with TargetEncoder"""
-    from category_encoders import *
-    import time
 
     features_columns = features.columns.values.tolist()
 
