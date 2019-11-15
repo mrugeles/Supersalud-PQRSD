@@ -32,6 +32,10 @@ In every link, click the button "Exportar" and then click the button "CSV" to do
 
 [![N|Solid](https://raw.githubusercontent.com/mrugeles/mrugeles.github.io/master/images/downloaddataset.png)](https://raw.githubusercontent.com/mrugeles/mrugeles.github.io/master/images/downloaddataset.png)
 
+### CIE 10 dataset
+
+https://datos.narino.gov.co/?q=dataset/cat%C3%A1logos-de-sector-salud/resource/1b117b20-493a-4965-87c8-b1db15dad898
+
 ## Python libraries
 Python libraries category_encoders, seaborn and mlxtend are required.
 ```sh
