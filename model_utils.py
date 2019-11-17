@@ -148,7 +148,7 @@ def model_validation(model_path, X_validation, y_validation):
 
     y_predictions = clf.predict(X_validation)
 
-    print "F-score on validation data: {:.4f}".format(fbeta_score(y_validation, y_predictions, beta = 2))
+    print("F-score on validation data: {:.4f}".format(fbeta_score(y_validation, y_predictions, beta = 2)))
 
 
     cnf_matrix = confusion_matrix(y_validation, y_predictions)
