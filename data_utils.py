@@ -5,6 +5,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from functools import reduce
 from IPython.display import display
+from category_encoders import *
+import time
 
 def get_pqrd_dataset():
     """Build a pandas dataframe from PQRD files."""
@@ -29,7 +31,8 @@ def get_pqrd_dataset():
     dataset = dataset.append(data_2015[ds_columns])
 
     #Formating the month fields to MM format.
-    dataset['MES'] = dataset['MES'].apply(lambda m: '0' + str(m) if m < 10 else m)
+    dataset = dataset.astype(str)
+    dataset['MES'] = dataset['MES'].apply(lambda m: '0' + m if int(m) < 10 else m)
 
 
     data_columns = dataset.columns.values.tolist()
@@ -53,7 +56,7 @@ def get_dataset():
 # clean AFEC_DPTO
 def clean_afec_dpto(dataset):
     """Fix wrong values for some specific cases."""
-    dataset['AFEC_DPTO'] = dataset['AFEC_DPTO'].apply(lambda s: 'san andres' if s == 'archipielago de san andres, providencia y santa catalina' or s == 'san andrés'.decode('utf-8') else s)
+    dataset['AFEC_DPTO'] = dataset['AFEC_DPTO'].apply(lambda s: 'san andres' if s == 'archipielago de san andres, providencia y santa catalina' or s == 'san andrés' else s)
     dataset['AFEC_DPTO'] = dataset['AFEC_DPTO'].apply(lambda s: 'bogota d.c.' if s == 'bogota d.c' else s)
     return dataset
 
@@ -88,8 +91,6 @@ def impute_values(path, imput_path):
 
 def encode_features(features, labels):
     """Encode categorical features with TargetEncoder"""
-    from category_encoders import *
-    import time
 
     features_columns = features.columns.values.tolist()
 
