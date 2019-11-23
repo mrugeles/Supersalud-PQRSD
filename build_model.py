@@ -54,3 +54,5 @@ def build_model(path_dataset, path_results):
 
 if __name__ == '__main__':
     build_model(sys.argv[1], sys.argv[2])
+    print('----------------------------------------------------------------------------------------\n')
+

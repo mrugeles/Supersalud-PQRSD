@@ -114,12 +114,12 @@ def tune_classifier(clf, parameters, X_train, X_test, y_train, y_test):
   from sklearn.metrics import make_scorer
   from sklearn.model_selection import GridSearchCV
   from sklearn.ensemble import ExtraTreesClassifier
-
+  start = time()
   c, r = y_train.shape
   labels = y_train.values.reshape(c,)
 
   scorer = make_scorer(fbeta_score, beta=2)
-  grid_obj = GridSearchCV(clf, param_grid=parameters,  scoring=scorer, iid=False)
+  grid_obj = GridSearchCV(clf, param_grid=parameters, n_jobs = 16,  scoring=scorer, iid=False)
   grid_fit = grid_obj.fit(X_train, labels)
   best_clf = grid_fit.best_estimator_
   predictions = (clf.fit(X_train, labels)).predict(X_test)
@@ -129,6 +129,34 @@ def tune_classifier(clf, parameters, X_train, X_test, y_train, y_test):
   tuned_score = fbeta_score(y_test, best_predictions, beta = 2)
 
   cnf_matrix = confusion_matrix(y_test, best_predictions)
+  end = time()
+  print(f'{best_clf.__class__.__name__,} tuned in {end - start} seconds.')
+
+  return best_clf, default_score, tuned_score, cnf_matrix
+
+def random_tune_classifier(clf, parameters, X_train, X_test, y_train, y_test):
+
+  from sklearn.metrics import make_scorer
+  from sklearn.model_selection import RandomizedSearchCV
+  from sklearn.ensemble import ExtraTreesClassifier
+  
+  start = time()
+  c, r = y_train.shape
+  labels = y_train.values.reshape(c,)
+
+  scorer = make_scorer(fbeta_score, beta=2)
+  grid_obj = RandomizedSearchCV(clf, param_distributions=parameters, n_jobs = 16,  scoring=scorer, iid=False)
+  grid_fit = grid_obj.fit(X_train, labels)
+  best_clf = grid_fit.best_estimator_
+  predictions = (clf.fit(X_train, labels)).predict(X_test)
+  best_predictions = best_clf.predict(X_test)
+
+  default_score = fbeta_score(y_test, predictions, beta = 2)
+  tuned_score = fbeta_score(y_test, best_predictions, beta = 2)
+
+  cnf_matrix = confusion_matrix(y_test, best_predictions)
+  end = time()
+  print(f'{best_clf.__class__.__name__,} tuned in {end - start} seconds.')
 
   return best_clf, default_score, tuned_score, cnf_matrix
 
