@@ -263,6 +263,35 @@ def cie10(dataset):
 
     encoded_features.to_csv("datasets/experiments/cie10.csv", index = False)
 
+def contains(value, list_values):
+    total = [key_word for key_word in list_values if key_word in value] 
+    return len(total) > 0 
+
+def risk_cases_encoder(dataset):
+    dataset = data_utils.clean_afec_dpto(dataset)
+    dataset = data_utils.clean_riesgo_vida(dataset)
+    dataset = data_utils.clean_cie_10(dataset)
+
+    mot_esp_cases = ['referencia', 'contra_referencia', 'urgencias', 'entrega de medicamentos', 'citas de consulta medica especializada', 'procedimientos y/o servicios', 'enfermedades raras o hu']
+    afec_edad_cases = ['de 6 a 12 años', 'de 0 a 5 años', 'de 13 a 17 años', 'mayor de 63 años']
+    cie10_cases = ['vih', 'tumores malignos', 'maternas', 'trasplantados']
+    
+    dataset['CASO_RIESGO'] = dataset['MOTIVO_ESPECIFICO'].apply(lambda value: contains(value, mot_esp_cases)) 
+    dataset['POBESPECIAL'] = dataset['AFEC_POBESPECIAL'].apply(lambda value: False if value == 'no aplica' else True) 
+    dataset['EDAD_RIESGO'] = dataset['AFEC_EDADR'].apply(lambda value: contains(value, afec_edad_cases)) 
+    dataset['CIE10_RIESGO'] = dataset['CIE_10'].apply(lambda value: contains(value, cie10_cases)) 
+
+    dataset = data_utils.remove_features(dataset)
+    dataset = dataset.reset_index()
+    dataset = dataset.drop(['index'], axis = 1)
+
+    labels = dataset[['RIESGO_VIDA']]
+    features = dataset.drop(['RIESGO_VIDA'], axis = 1)
+
+    encoded_features = data_utils.encode_features(features, labels)
+
+    encoded_features['RIESGO_VIDA'] = labels
+    encoded_features.to_csv("datasets/experiments/risk_cases_encoder.csv", index = False)
 
 experiment = {
     'naive': naive,
@@ -273,5 +302,6 @@ experiment = {
     'imputing': imputing,
     'normalizing': normalizing,
     'target_encoder': target_encoder,
-    'cie10': cie10
+    'risk_cases_encoder': risk_cases_encoder,
+
 }

@@ -49,7 +49,7 @@ def init_classifiers(seed):
         'SGDClassifier': SGDClassifier(random_state = seed),
         #'KNeighborsClassifier': KNeighborsClassifier(),
         #'RadiusNeighborsClassifier': RadiusNeighborsClassifier(),
-        'MLPClassifier': MLPClassifier(random_state = seed),
+        #'MLPClassifier': MLPClassifier(random_state = seed),
         'DecisionTreeClassifier': DecisionTreeClassifier(random_state = seed),
         'ExtraTreeClassifier': ExtraTreeClassifier(random_state = seed)
     }
@@ -118,7 +118,7 @@ def tune_classifier(clf, parameters, X_train, X_test, y_train, y_test):
   labels = y_train.values.reshape(c,)
 
   scorer = make_scorer(fbeta_score, beta=2)
-  grid_obj = GridSearchCV(clf, param_grid=parameters,  scoring=scorer, iid=False)
+  grid_obj = GridSearchCV(clf, param_grid=parameters,  n_jobs = 16, scoring=scorer, iid=False)
   grid_fit = grid_obj.fit(X_train, labels)
   best_clf = grid_fit.best_estimator_
   predictions = (clf.fit(X_train, labels)).predict(X_test)
