@@ -19,6 +19,41 @@ from mlxtend.classifier import StackingClassifier
 
 import itertools
 
+from sklearn.ensemble import AdaBoostClassifier
+from sklearn.ensemble import BaggingClassifier
+from sklearn.ensemble import ExtraTreesClassifier
+from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import PassiveAggressiveClassifier
+from sklearn.linear_model import RidgeClassifier 
+from sklearn.linear_model import RidgeClassifierCV 
+from sklearn.linear_model import SGDClassifier 
+from sklearn.neural_network import MLPClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.tree import ExtraTreeClassifier 
+
+import xgboost as xgb
+
+def init_classifiers(seed):
+    return {
+        'AdaBoostClassifier': AdaBoostClassifier(random_state = seed),
+        'BaggingClassifier': BaggingClassifier(random_state = seed),
+        'ExtraTreesClassifier': ExtraTreesClassifier(random_state = seed),
+        'GradientBoostingClassifier': GradientBoostingClassifier(random_state = seed),
+        'RandomForestClassifier': RandomForestClassifier(random_state = seed),
+        'XGBClassifier': xgb.XGBClassifier(),
+        'LogisticRegression': LogisticRegression(random_state = seed),
+        'PassiveAggressiveClassifier': PassiveAggressiveClassifier(random_state = seed),
+        'RidgeClassifier': RidgeClassifier(random_state = seed),
+        'RidgeClassifierCV': RidgeClassifierCV(),
+        'SGDClassifier': SGDClassifier(random_state = seed),
+        #'KNeighborsClassifier': KNeighborsClassifier(),
+        #'RadiusNeighborsClassifier': RadiusNeighborsClassifier(),
+        'MLPClassifier': MLPClassifier(random_state = seed),
+        'DecisionTreeClassifier': DecisionTreeClassifier(random_state = seed),
+        'ExtraTreeClassifier': ExtraTreeClassifier(random_state = seed)
+    }
+
 ###
 #      This method trains a classifier with the given beta value and splitted data.
 #

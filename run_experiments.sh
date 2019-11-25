@@ -1,0 +1,9 @@
+python run_experiment.py naive
+python run_experiment.py basic
+python run_experiment.py missing_state
+python run_experiment.py missing_state_remove_75_percent
+python run_experiment.py missing_state_and_imputing
+python run_experiment.py imputing
+python run_experiment.py normalizing
+python run_experiment.py target_encoder
+python run_experiment.py cie10
