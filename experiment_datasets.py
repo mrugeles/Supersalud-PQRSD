@@ -302,6 +302,7 @@ experiment = {
     'imputing': imputing,
     'normalizing': normalizing,
     'target_encoder': target_encoder,
-    'risk_cases_encoder': risk_cases_encoder,
+    'cie10': cie10
+    #'risk_cases_encoder': risk_cases_encoder,
 
 }

@@ -49,7 +49,7 @@ def init_classifiers(seed):
         'SGDClassifier': SGDClassifier(random_state = seed),
         #'KNeighborsClassifier': KNeighborsClassifier(),
         #'RadiusNeighborsClassifier': RadiusNeighborsClassifier(),
-        #'MLPClassifier': MLPClassifier(random_state = seed),
+        'MLPClassifier': MLPClassifier(random_state = seed),
         'DecisionTreeClassifier': DecisionTreeClassifier(random_state = seed),
         'ExtraTreeClassifier': ExtraTreeClassifier(random_state = seed)
     }
