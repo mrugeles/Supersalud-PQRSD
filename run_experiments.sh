@@ -7,3 +7,5 @@ python run_experiment.py imputing
 python run_experiment.py normalizing
 python run_experiment.py target_encoder
 python run_experiment.py cie10
+python run_experiment.py target_encoder_only_complains
+python run_experiment.py cie10_only_complains

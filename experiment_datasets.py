@@ -199,6 +199,27 @@ def target_encoder(dataset):
     encoded_features['RIESGO_VIDA'] = labels
     encoded_features.to_csv("datasets/experiments/target_encoder.csv", index = False)
 
+def target_encoder_only_complains(dataset):
+    dataset = dataset[
+        (dataset['PQR_TIPOPETICION'] != 'peticion de informacion') &
+        (dataset['PQR_TIPOPETICION'] != 'consulta y/o solicitud de informacion') 
+        ]
+
+    dataset = data_utils.clean_afec_dpto(dataset)
+    dataset = data_utils.clean_riesgo_vida(dataset)
+    dataset = data_utils.clean_cie_10(dataset)
+    dataset = data_utils.remove_features(dataset)
+    dataset = dataset.reset_index()
+    dataset = dataset.drop(['index'], axis = 1)
+
+    labels = dataset[['RIESGO_VIDA']]
+    features = dataset.drop(['RIESGO_VIDA'], axis = 1)
+
+    encoded_features = data_utils.encode_features(features, labels)
+
+    encoded_features['RIESGO_VIDA'] = labels
+    encoded_features.to_csv("datasets/experiments/target_encoder_only_complains.csv", index = False)    
+
 def cie10(dataset):
     cie10_df = pd.read_csv('datasets/CIE10.csv', sep = ';')
     cie10_df['DESCRIPCION_COD_CIE_10_04'] = cie10_df['DESCRIPCION_COD_CIE_10_04'].apply(lambda value: value.lower())
@@ -263,6 +284,74 @@ def cie10(dataset):
 
     encoded_features.to_csv("datasets/experiments/cie10.csv", index = False)
 
+def cie10_only_complains(dataset):
+    dataset = dataset[
+        (dataset['PQR_TIPOPETICION'] != 'peticion de informacion') &
+        (dataset['PQR_TIPOPETICION'] != 'consulta y/o solicitud de informacion') 
+        ]
+    cie10_df = pd.read_csv('datasets/CIE10.csv', sep = ';')
+    cie10_df['DESCRIPCION_COD_CIE_10_04'] = cie10_df['DESCRIPCION_COD_CIE_10_04'].apply(lambda value: value.lower())
+    dataset = pd.merge(left = dataset, right = cie10_df, how = 'left', left_on='CIE_10', right_on='DESCRIPCION_COD_CIE_10_04')
+
+    dataset = dataset.drop(['CIE_10', 'NOMBRE_CAPITULO', 'DESCRIPCION_COD_CIE_10_03', 'DESCRIPCION_COD_CIE_10_04'], axis = 1)
+
+    cie10_columns = [
+        'CAPITULO', 
+        'COD_CIE_10_03', 
+        'COD_CIE_10_04', 
+        'SEXO', 
+        'LIMITE_INFERIOR_EDAD', 
+        'LIMITE_SUPERIOR_EDAD']
+
+    dataset[cie10_columns] = dataset[cie10_columns].replace(np.nan, 'no_cie10', regex=True)
+    dataset = dataset[dataset['CAPITULO'] != 'no_cie10']
+
+    dataset['CIE10_SEXO'] = dataset['SEXO'].apply(cie10_sexo)
+    dataset['LIMITE_INFERIOR_EDAD_Y'] = dataset['LIMITE_INFERIOR_EDAD'].apply(to_year)
+    dataset['LIMITE_SUPERIOR_EDAD_Y'] = dataset['LIMITE_SUPERIOR_EDAD'].apply(to_year)
+    dataset['AFEC_EDADR_INF'] = dataset['AFEC_EDADR'].apply(get_edad_inf)
+    dataset['AFEC_EDADR_SUP'] = dataset['AFEC_EDADR'].apply(get_edad_sup)
+    dataset['CIE10_RANGO_EDAD'] = dataset.apply(in_range, axis=1)
+
+    dataset = dataset.drop(
+        [
+            'SEXO',
+            'LIMITE_INFERIOR_EDAD', 
+            'LIMITE_SUPERIOR_EDAD', 
+            'LIMITE_INFERIOR_EDAD_Y', 
+            'LIMITE_SUPERIOR_EDAD_Y',
+            'AFEC_EDADR'
+
+        ], axis = 1
+    )
+
+
+    dataset[
+        [
+            'AFEC_GENERO',
+            'CIE10_SEXO',
+            'CIE10_RANGO_EDAD',
+            'AFEC_EDADR_INF', 
+            'AFEC_EDADR_SUP',
+
+        ]
+    ].head()
+
+    dataset = data_utils.clean_afec_dpto(dataset)
+    dataset = data_utils.clean_riesgo_vida(dataset)
+    dataset = data_utils.remove_features(dataset)
+    dataset = dataset.reset_index()
+    dataset = dataset.drop(['index'], axis = 1)
+
+    labels = dataset[['RIESGO_VIDA']]
+    features = dataset.drop(['RIESGO_VIDA'], axis = 1)
+
+    encoded_features = data_utils.encode_features(features, labels)
+
+    encoded_features['RIESGO_VIDA'] = labels
+
+    encoded_features.to_csv("datasets/experiments/cie10_only_complains.csv", index = False)
+
 def contains(value, list_values):
     total = [key_word for key_word in list_values if key_word in value] 
     return len(total) > 0 
@@ -302,7 +391,8 @@ experiment = {
     'imputing': imputing,
     'normalizing': normalizing,
     'target_encoder': target_encoder,
-    'cie10': cie10
-    #'risk_cases_encoder': risk_cases_encoder,
+    'cie10': cie10,
+    'target_encoder_only_complains': target_encoder_only_complains,
+    'cie10_only_complains': cie10_only_complains
 
 }
