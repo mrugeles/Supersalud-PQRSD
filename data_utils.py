@@ -8,8 +8,59 @@ import time
 
 from functools import reduce
 from IPython.display import display
+from category_encoders import *
+import time
 
 def get_pqrd_dataset():
+        """Build a pandas dataframe from PQRD files."""
+        #
+        data_2017 = pd.read_csv("datasets/Base_De_Datos_PQRD_2017.csv", dtype='str')
+        data_2017['year'] = 2017
+        data_2016 = pd.read_csv("datasets/Base_De_Datos_PQRD_2016.csv", dtype='str')
+        data_2016['year'] = 2016
+        data_2015 = pd.read_csv("datasets/Base_De_Datos_PQRD_2015.csv", dtype='str')
+        data_2015['year'] = 2015
+
+
+        # Every year some features can be added or removed. So before perform a union we first take all the columns in common.
+        colums_2017 = data_2017.columns.values
+        colums_2016 = data_2016.columns.values
+        colums_2015 = data_2015.columns.values
+        ds_columns = reduce(np.intersect1d, (colums_2017, colums_2016, colums_2015))
+
+        #Unifying datasets.
+        dataset = data_2017[ds_columns]
+        dataset = dataset.append(data_2016[ds_columns])
+        dataset = dataset.append(data_2015[ds_columns])
+
+        #Formating the month fields to MM format.
+        dataset = dataset.astype(str)
+
+        dataset['MES'] = dataset['MES'].apply(lambda m: '0' + m if int(m) < 10 else m)
+
+
+        data_columns = dataset.columns.values.tolist()
+        for column in data_columns:
+            dataset[column] = dataset[column].apply(lambda s: str(s).lower())
+
+        print(dataset.shape)
+        dataset = dataset[
+            (dataset['PQR_TIPOPETICION'].str.contains('tutela') ) |
+            (dataset['PQR_TIPOPETICION'].str.contains('reclamo') )
+        ]
+        print(dataset.shape)
+        return dataset
+
+# get dataset
+def get_dataset():
+    """Build a pandas dataframe from PQRD files and remove the year feature that was used for analysis purposes."""
+    dataset = get_pqrd_dataset()
+    dataset = dataset.drop(['year'], axis = 1)
+
+    return dataset
+
+
+def get_pqrd_dataset_null_empty():
     """Build a pandas dataframe from PQRD files."""
     #
     data_2017 = pd.read_csv("datasets/Base_De_Datos_PQRD_2017.csv", dtype='str')
@@ -31,21 +82,31 @@ def get_pqrd_dataset():
     dataset = dataset.append(data_2016[ds_columns])
     dataset = dataset.append(data_2015[ds_columns])
 
-    dataset = dataset.astype(str)
-    #Formating the month fields to MM format.
-    dataset['MES'] = dataset['MES'].apply(lambda m: '0' + m if int(m) < 10 else m)
 
+    #Formating the month fields to MM format.
+    dataset['MES'] = dataset['MES'].apply(lambda m: '0' + str(m) if int(m) < 10 else str(m))
 
     data_columns = dataset.columns.values.tolist()
     for column in data_columns:
         dataset[column] = dataset[column].apply(lambda s: str(s).lower())
 
+    dataset = dataset.astype(str)
+    print(dataset.shape)
+    dataset = dataset[
+        (dataset['PQR_TIPOPETICION'].str.contains('tutela') ) |
+        (dataset['PQR_TIPOPETICION'].str.contains('reclamo') )
+    ]
+    print(dataset.shape)
+
+    dataset = dataset.replace('0', np.NaN)
+    dataset = dataset.replace('nan', np.NaN)
+    dataset = dataset.replace('', np.NaN)
     return dataset
 
 # get dataset
-def get_dataset():
+def get_dataset_null_empty():
     """Build a pandas dataframe from PQRD files and remove the year feature that was used for analysis purposes."""
-    dataset = get_pqrd_dataset()
+    dataset = get_pqrd_dataset_null_empty()
     dataset = dataset.drop(['year'], axis = 1)
 
     return dataset
