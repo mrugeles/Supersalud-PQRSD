@@ -1,5 +1,8 @@
-{
-  "seeds": [194, 393, 134],
-  "test_sizes": [0.1, 0.15, 0.20, 0.30],
-  "impute": [1, 0]
-}
+[
+  {
+    "experiment_name": "target_encoder",
+    "seed": 134,
+    "test_size": 0.2,
+    "impute": 0.0
+  }
+]

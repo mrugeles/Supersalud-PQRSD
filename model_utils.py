@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from time import time
 import matplotlib.pyplot as plt
+from mlflow import log_metrics
 from IPython.display import display
 
 from sklearn.model_selection import train_test_split
@@ -14,8 +15,6 @@ from sklearn.preprocessing import MaxAbsScaler
 from sklearn.preprocessing import RobustScaler
 from sklearn.preprocessing import QuantileTransformer
 from sklearn.ensemble import RandomForestClassifier
-
-from mlxtend.classifier import StackingClassifier
 
 import itertools
 
@@ -69,7 +68,7 @@ def init_classifiers(seed):
 #       dfResults (dataset): Dataset with information about the trained model.
 ###
 
-def train_predict(learner, beta_value, X_train, y_train, X_test, y_test, dfResults):
+def train_predict(learner, beta_value, X_train, y_train, X_test, y_test):
     start = time()
     learner = learner.fit(X_train, y_train)
     end = time()
@@ -88,9 +87,10 @@ def train_predict(learner, beta_value, X_train, y_train, X_test, y_test, dfResul
     f_test =  fbeta_score(y_test, predictions_test, beta_value)
 
     print("%s trained." % (learner.__class__.__name__))
-
-    dfResults = dfResults.append({'learner': learner.__class__.__name__, 'train_time': train_time, 'pred_time': pred_time, 'f_test': f_test, 'f_train':f_train}, ignore_index=True)
-    return learner, dfResults
+    print("f_test: %f" % (f_test))
+    log_metrics({'train_time': train_time,
+                 'pred_time': pred_time, 'f_test': f_test, 'f_train': f_train})
+    return learner
 
 ###
 #      This method use grid search to tune a classifier.
