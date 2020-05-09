@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/mrugeles/Documents/DataScience/Supersalud-PQRSD/mlruns/0/1439c1bd085f472b86c95a62356b976e/artifacts
+end_time: 1589043480600
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: deleted
+name: ''
+run_id: 1439c1bd085f472b86c95a62356b976e
+run_uuid: 1439c1bd085f472b86c95a62356b976e
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1589043435227
+status: 3
+tags: []
+user_id: mrugeles

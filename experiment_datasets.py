@@ -4,7 +4,7 @@ import numpy as np
 from sklearn import preprocessing
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import MinMaxScaler
-
+from mlflow import log_artifact, log_param
 
 def to_year(value_range):
     if(value_range == 'no_cie10'):
@@ -69,10 +69,11 @@ def label_encode(dataset):
 
 def naive(dataset):
     dataset = data_utils.clean_riesgo_vida(dataset)
-    dataset = dataset.sample(frac=0.1, random_state=1)
     dataset = dataset.drop(['PQR_ESTADO'], axis = 1)
     dataset = label_encode(dataset)
     dataset.to_csv("datasets/experiments/naive.csv", index = False)
+    log_artifact("datasets/experiments/naive.csv")
+
 
 def basic(dataset):
     dataset = data_utils.clean_afec_dpto(dataset)
@@ -83,6 +84,8 @@ def basic(dataset):
     dataset.drop(['index'], axis = 1)
     dataset = label_encode(dataset)
     dataset.to_csv("datasets/experiments/basic.csv", index = False)
+    log_artifact("datasets/experiments/basic.csv")
+
 
 def missing_state(dataset):
     dataset = data_utils.clean_afec_dpto(dataset)
@@ -100,6 +103,7 @@ def missing_state(dataset):
     
     dataset[features_columns] = label_encode(dataset[features_columns])
     dataset.to_csv("datasets/experiments/missing_state.csv", index = False)
+    log_artifact("datasets/experiments/missing_state.csv")
 
 def missing_state_remove_75_percent(dataset):
     dataset = data_utils.clean_afec_dpto(dataset)
@@ -119,6 +123,8 @@ def missing_state_remove_75_percent(dataset):
     features_columns = [column for column in dataset.columns if '_is_missing' not in column]
     dataset[features_columns] = label_encode(dataset[features_columns])
     dataset.to_csv("datasets/experiments/missing_state_remove_75_percent.csv", index = False)
+    log_artifact("datasets/experiments/missing_state_remove_75_percent.csv")
+
 
 def missing_state_and_imputing(dataset):
     dataset = data_utils.clean_afec_dpto(dataset)
@@ -145,6 +151,8 @@ def missing_state_and_imputing(dataset):
     dataset[non_numeric_features] = dataset[non_numeric_features].applymap(str)
     dataset[non_numeric_features] = label_encode(dataset[non_numeric_features])
     dataset.to_csv("datasets/experiments/missing_state_and_imputing.csv", index = False)
+    log_artifact("datasets/experiments/missing_state_and_imputing.csv")
+
 
 def imputing(dataset):
     dataset = data_utils.clean_afec_dpto(dataset)
@@ -160,6 +168,8 @@ def imputing(dataset):
     dataset = label_encode(dataset)
 
     dataset.to_csv("datasets/experiments/imputing.csv", index = False)
+    log_artifact("datasets/experiments/imputing.csv")
+
 
 def normalizing(dataset):
     dataset = data_utils.clean_afec_dpto(dataset)
@@ -182,6 +192,8 @@ def normalizing(dataset):
     dataset = features
     dataset['RIESGO_VIDA'] = labels.values
     dataset.to_csv("datasets/experiments/normalizing.csv", index = False)
+    log_artifact("datasets/experiments/normalizing.csv")
+
 
 def target_encoder(dataset):
     dataset = data_utils.clean_afec_dpto(dataset)
@@ -218,7 +230,9 @@ def target_encoder_only_complains(dataset):
     encoded_features = data_utils.encode_features(features, labels)
 
     encoded_features['RIESGO_VIDA'] = labels
-    encoded_features.to_csv("datasets/experiments/target_encoder_only_complains.csv", index = False)    
+    encoded_features.to_csv("datasets/experiments/target_encoder_only_complains.csv", index = False)   
+    log_artifact("datasets/experiments/target_encoder_only_complains.csv")
+
 
 def cie10(dataset):
     cie10_df = pd.read_csv('datasets/CIE10.csv', sep = ';')
@@ -283,6 +297,8 @@ def cie10(dataset):
     encoded_features['RIESGO_VIDA'] = labels
 
     encoded_features.to_csv("datasets/experiments/cie10.csv", index = False)
+    log_artifact("datasets/experiments/cie10.csv")
+
 
 def cie10_only_complains(dataset):
     dataset = dataset[
@@ -351,6 +367,8 @@ def cie10_only_complains(dataset):
     encoded_features['RIESGO_VIDA'] = labels
 
     encoded_features.to_csv("datasets/experiments/cie10_only_complains.csv", index = False)
+    log_artifact("datasets/experiments/cie10_only_complains.csv")
+
 
 def contains(value, list_values):
     total = [key_word for key_word in list_values if key_word in value] 
@@ -381,6 +399,8 @@ def risk_cases_encoder(dataset):
 
     encoded_features['RIESGO_VIDA'] = labels
     encoded_features.to_csv("datasets/experiments/risk_cases_encoder.csv", index = False)
+    log_artifact("datasets/experiments/risk_cases_encoder.csv")
+
 
 experiment = {
     'naive': naive,

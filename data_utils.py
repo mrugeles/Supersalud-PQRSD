@@ -3,12 +3,11 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from category_encoders import *
 import time
 
 from functools import reduce
 from IPython.display import display
-from category_encoders import *
+from category_encoders.target_encoder import TargetEncoder
 import time
 
 def get_pqrd_dataset():
@@ -35,7 +34,6 @@ def get_pqrd_dataset():
 
         #Formating the month fields to MM format.
         dataset = dataset.astype(str)
-
         dataset['MES'] = dataset['MES'].apply(lambda m: '0' + m if int(m) < 10 else m)
 
 
@@ -43,12 +41,10 @@ def get_pqrd_dataset():
         for column in data_columns:
             dataset[column] = dataset[column].apply(lambda s: str(s).lower())
 
-        print(dataset.shape)
         dataset = dataset[
             (dataset['PQR_TIPOPETICION'].str.contains('tutela') ) |
             (dataset['PQR_TIPOPETICION'].str.contains('reclamo') )
         ]
-        print(dataset.shape)
         return dataset
 
 # get dataset
